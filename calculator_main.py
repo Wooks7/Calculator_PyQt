@@ -118,9 +118,12 @@ class Main(QDialog):
     ### functions ###
     #################
     def number_button_clicked(self, num):
-        equation = self.equation_solution.text()  # LineEdit에 표시된 문자열 가져오기
-        equation += str(num)
-        self.equation_solution.setText(equation)  # 변경된 문자열 설정  
+        equation = self.equation_solution.text()
+        if equation == '0':
+            self.equation_solution.setText(str(num))
+        else:
+            equation += str(num)
+            self.equation_solution.setText(equation)
 
     def button_operation_clicked(self, operation):
         equation = self.equation_solution.text()
