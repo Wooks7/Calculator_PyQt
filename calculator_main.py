@@ -118,10 +118,14 @@ class Main(QDialog):
     #################
     ### functions ###
     #################
-    def number_button_clicked(self, num):
+    def number_button_clicked(self, num):   
         equation = self.equation_solution.text()
-        if equation == '0':
+        if equation == '0' and num != 0 and num != '.':  # 입력된 식이 '0'이고, 입력된 숫자가 '0'이 아니며 '.'도 아닌 경우
             self.equation_solution.setText(str(num))
+        elif equation == '0' and num == '.':  # 입력된 식이 '0'이고, 입력된 숫자가 '.'인 경우
+            self.equation_solution.setText('0.')  # '0.'으로 식을 설정
+        elif equation == '0' and num == '0':  # 입력된 식이 '0'이고, 입력된 숫자가 '0'인 경우
+            pass
         else:
             equation += str(num)
             self.equation_solution.setText(equation)
@@ -159,12 +163,12 @@ class Main(QDialog):
 
     def button_CE_clicked(self):
         equation = self.equation_solution.text()
-        if equation.isdigit():  # 식이 숫자만으로 이루어져 있을 경우
-            self.equation_solution.setText('0')  # 식을 0으로 설정
+        if equation.isdigit() or equation.startswith('-'):  # 식이 숫자만으로 이루어져 있거나 음수인 경우
+            self.equation_solution.setText('0')
         else:
             last_operator = max([equation.rfind(op) for op in ['+', '-', '*', '/']])
             if last_operator == -1 or last_operator == len(equation) - 1:
-                self.equation_solution.setText('0')  # 식을 비움
+                self.equation_solution.setText('0')
             else:
                 self.equation_solution.setText(equation[:last_operator+1])  # 연산자 이전까지의 숫자를 지움
 
@@ -172,8 +176,17 @@ class Main(QDialog):
             self.equation_solution.setText('0')
 
     def button_inverse_clicked(self):
-        # 버튼 '1/x'가 클릭되었을 때 수행할 기능
-        pass
+        equation = self.equation_solution.text()
+        try:
+            if equation:
+                result = 1 / float(equation)  # 입력된 수의 역수를 계산
+                self.equation_solution.setText(str(result))
+            else:
+                self.equation_solution.setText("0으로 나눌 수 없습니다.")
+        except ZeroDivisionError:  # 입력된 수가 0인 경우
+            self.equation_solution.setText("0으로 나눌 수 없습니다.")
+        except Exception as e:  # 그 외의 오류가 발생한 경우
+            self.equation_solution.setText("입력이 잘못되었습니다.")
 
     def button_square_clicked(self):
         # 버튼 'x^2'가 클릭되었을 때 수행할 기능
