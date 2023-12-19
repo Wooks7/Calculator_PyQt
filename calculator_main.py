@@ -2,6 +2,7 @@ import sys
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
 import re
+import math
 
 class Main(QDialog):
     def __init__(self):
@@ -73,7 +74,7 @@ class Main(QDialog):
                                                             self.number_button_clicked(num))
                 layout_number.addWidget(number_button_dict[number], 4, 1)
 
-        ### 소숫점 버튼과 00 버튼을 입력하고 시그널 설정
+        ### 소숫점 버튼과 +/- 버튼을 입력하고 시그널 설정
         button_dot = QPushButton(".")
         button_dot.clicked.connect(lambda state, num = ".": self.number_button_clicked(num))
         layout_number.addWidget(button_dot, 4, 2)
@@ -190,7 +191,7 @@ class Main(QDialog):
 
     def button_square_clicked(self):
         equation = self.equation_solution.text()
-        if equation:  # 식이 비어있지 않은 경우
+        if equation:
             try:
                 result = float(equation) ** 2  # 입력된 수의 제곱을 계산
                 if result.is_integer():  # 계산 결과가 정수인 경우
@@ -201,8 +202,15 @@ class Main(QDialog):
 
 
     def button_root_clicked(self):
-        # 버튼 '√'가 클릭되었을 때 수행할 기능
-        pass
+        equation = self.equation_solution.text()
+        if equation:
+            try:
+                result = math.sqrt(float(equation))  # 입력된 수의 제곱근을 계산
+                if result.is_integer():  # 계산 결과가 정수인 경우
+                    result = int(result)  # 결과를 정수로 변환
+                self.equation_solution.setText(str(result))
+            except ValueError:
+                print("유효하지 않은 입력입니다. 양수를 입력해주세요.")
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
