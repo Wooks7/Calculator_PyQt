@@ -13,6 +13,7 @@ class Main(QDialog):
         layout_operation = QGridLayout()
         layout_number = QGridLayout()
         layout_equation_solution = QGridLayout()
+        layout_addfeat = QGridLayout()
 
         ### 수식 입력과 답 출력을 위한 LineEdit 위젯 생성
         label_equation = QLabel("Equation: ")
@@ -81,10 +82,27 @@ class Main(QDialog):
         button_double_zero.clicked.connect(lambda state, num = "00": self.number_button_clicked(num))
         layout_number.addWidget(button_double_zero, 4, 0)
 
+        ### %, CE, C, 1/x, x^2, root x 버튼 생성
+        button_percentage = QPushButton("%")
+        button_CE = QPushButton("CE")
+        button_C = QPushButton("C")
+        button_inverse = QPushButton("1/x")
+        button_square = QPushButton("x^2")
+        button_root = QPushButton("√")
+
+        ### 버튼을 layout_addfeat 레이아웃에 추가
+        layout_addfeat.addWidget(button_percentage, 0, 0)
+        layout_addfeat.addWidget(button_CE, 0, 1)
+        layout_addfeat.addWidget(button_C, 0, 2)
+        layout_addfeat.addWidget(button_inverse, 1, 0)
+        layout_addfeat.addWidget(button_square, 1, 1)
+        layout_addfeat.addWidget(button_root, 1, 2)
+
         ### 각 레이아웃을 main_layout 레이아웃에 추가
         main_layout.addLayout(layout_equation_solution, 0, 0, 1, 0)
         main_layout.addLayout(layout_operation, 1, 1)
         main_layout.addLayout(layout_number, 1, 0)
+        main_layout.addLayout(layout_addfeat, 2, 0, 1, 0)
 
         self.setLayout(main_layout)
         self.show()
