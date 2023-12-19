@@ -143,20 +143,25 @@ class Main(QDialog):
 
     def button_percentage_clicked(self):
         equation = self.equation_solution.text()
-        try:
-            result = eval(equation) / 100  # 현재 수식의 값을 100으로 나누어 백분율 계산
-            self.equation_solution.setText(str(result))
-        except Exception as e:
-            self.equation_solution.setText("입력이 잘못되었습니다.")
-            pass
+        if equation == '0':  # 입력된 식이 '0'인 경우
+            self.equation_solution.setText('0')  # 결과를 '0'으로 설정
+        else:
+            try:
+                result = eval(equation) / 100  # 현재 수식의 값을 100으로 나누어 백분율 계산
+                self.equation_solution.setText(str(result))
+            except Exception as e:
+                self.equation_solution.setText("입력이 잘못되었습니다.")
+
 
     def button_CE_clicked(self):
-        # 버튼 'CE'가 클릭되었을 때 수행할 기능
-        pass
+        equation = self.equation_solution.text()
+        if equation.isdigit():  # 식이 숫자만으로 이루어져 있을 경우
+            self.equation_solution.setText('0')  # 식을 0으로 설정
+        else:
+            self.equation_solution.setText('')  # 그렇지 않을 경우, 식을 비움
 
     def button_C_clicked(self):
-        # 버튼 'C'가 클릭되었을 때 수행할 기능
-        pass
+            self.equation_solution.setText('0')
 
     def button_inverse_clicked(self):
         # 버튼 '1/x'가 클릭되었을 때 수행할 기능
