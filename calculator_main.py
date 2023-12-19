@@ -87,6 +87,14 @@ class Main(QDialog):
         button_square = QPushButton("x^2")
         button_root = QPushButton("√")
 
+        # 버튼들의 기능 추가
+        button_percentage.clicked.connect(self.button_percentage_clicked)
+        button_CE.clicked.connect(self.button_CE_clicked)
+        button_C.clicked.connect(self.button_C_clicked)
+        button_inverse.clicked.connect(self.button_inverse_clicked)
+        button_square.clicked.connect(self.button_square_clicked)
+        button_root.clicked.connect(self.button_root_clicked)
+
         ### 버튼을 layout_addfeat 레이아웃에 추가
         layout_addfeat.addWidget(button_percentage, 0, 0)
         layout_addfeat.addWidget(button_CE, 0, 1)
@@ -130,6 +138,30 @@ class Main(QDialog):
         equation = self.equation_solution.text()
         equation = equation[:-1]
         self.equation_solution.setText(equation)        
+
+    def button_percentage_clicked(self):
+        # 버튼 '%'가 클릭되었을 때 수행할 기능
+        pass
+
+    def button_CE_clicked(self):
+        # 버튼 'CE'가 클릭되었을 때 수행할 기능
+        pass
+
+    def button_C_clicked(self):
+        # 버튼 'C'가 클릭되었을 때 수행할 기능
+        pass
+
+    def button_inverse_clicked(self):
+        # 버튼 '1/x'가 클릭되었을 때 수행할 기능
+        pass
+
+    def button_square_clicked(self):
+        # 버튼 'x^2'가 클릭되었을 때 수행할 기능
+        pass
+
+    def button_root_clicked(self):
+        # 버튼 '√'가 클릭되었을 때 수행할 기능
+        pass
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
