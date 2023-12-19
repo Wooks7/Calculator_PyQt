@@ -1,6 +1,7 @@
 import sys
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
+import re
 
 class Main(QDialog):
     def __init__(self):
@@ -161,7 +162,11 @@ class Main(QDialog):
         if equation.isdigit():  # 식이 숫자만으로 이루어져 있을 경우
             self.equation_solution.setText('0')  # 식을 0으로 설정
         else:
-            self.equation_solution.setText('')  # 그렇지 않을 경우, 식을 비움
+            last_operator = max([equation.rfind(op) for op in ['+', '-', '*', '/']])
+            if last_operator == -1 or last_operator == len(equation) - 1:
+                self.equation_solution.setText('0')  # 식을 비움
+            else:
+                self.equation_solution.setText(equation[:last_operator+1])  # 연산자 이전까지의 숫자를 지움
 
     def button_C_clicked(self):
             self.equation_solution.setText('0')
