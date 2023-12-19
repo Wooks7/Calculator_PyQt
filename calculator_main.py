@@ -61,24 +61,27 @@ class Main(QDialog):
         ### 숫자 버튼 생성하고, layout_number 레이아웃에 추가
         ### 각 숫자 버튼을 클릭했을 때, 숫자가 수식창에 입력 될 수 있도록 시그널 설정
         number_button_dict = {}
-        for number in range(0, 10):
-            number_button_dict[number] = QPushButton(str(number))
-            number_button_dict[number].clicked.connect(lambda state, num = number:
-                                                       self.number_button_clicked(num))
-            if number >0:
-                x,y = divmod(number-1, 3)
+        positions = [(i, j) for i in range(3, -1, -1) for j in range(3)]
+
+        for number in range(0, 10):  # 0부터 9까지의 숫자 버튼 생성
+            if number != 0:  # 숫자가 0이 아니라면
+                number_button_dict[number] = QPushButton(str(number))
+                number_button_dict[number].clicked.connect(lambda state, num = number:
+                                                            self.number_button_clicked(num))
+                x, y = positions[number - 1]
                 layout_number.addWidget(number_button_dict[number], x, y)
-            elif number==0:
-                layout_number.addWidget(number_button_dict[number], 3, 1)
+            else:  # 숫자가 0이면
+                number_button_dict[number] = QPushButton(str(number))
+                layout_number.addWidget(number_button_dict[number], 4, 1)  # 0 버튼을 (3, 1) 위치에 추가
 
         ### 소숫점 버튼과 00 버튼을 입력하고 시그널 설정
         button_dot = QPushButton(".")
         button_dot.clicked.connect(lambda state, num = ".": self.number_button_clicked(num))
-        layout_number.addWidget(button_dot, 3, 2)
+        layout_number.addWidget(button_dot, 4, 2)
 
         button_double_zero = QPushButton("+/-")
         button_double_zero.clicked.connect(lambda state, num = "00": self.number_button_clicked(num))
-        layout_number.addWidget(button_double_zero, 3, 0)
+        layout_number.addWidget(button_double_zero, 4, 0)
 
         ### 각 레이아웃을 main_layout 레이아웃에 추가
         main_layout.addLayout(layout_equation_solution)
