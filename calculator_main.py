@@ -68,7 +68,9 @@ class Main(QDialog):
                 layout_number.addWidget(number_button_dict[number], x, y)
             else:  # 숫자가 0이면
                 number_button_dict[number] = QPushButton(str(number))
-                layout_number.addWidget(number_button_dict[number], 4, 1)  # 0 버튼을 (3, 1) 위치에 추가
+                number_button_dict[number].clicked.connect(lambda state, num = number:
+                                                            self.number_button_clicked(num))
+                layout_number.addWidget(number_button_dict[number], 4, 1)
 
         ### 소숫점 버튼과 00 버튼을 입력하고 시그널 설정
         button_dot = QPushButton(".")
@@ -140,8 +142,13 @@ class Main(QDialog):
         self.equation_solution.setText(equation)        
 
     def button_percentage_clicked(self):
-        # 버튼 '%'가 클릭되었을 때 수행할 기능
-        pass
+        equation = self.equation_solution.text()
+        try:
+            result = eval(equation) / 100  # 현재 수식의 값을 100으로 나누어 백분율 계산
+            self.equation_solution.setText(str(result))
+        except Exception as e:
+            self.equation_solution.setText("입력이 잘못되었습니다.")
+            pass
 
     def button_CE_clicked(self):
         # 버튼 'CE'가 클릭되었을 때 수행할 기능
