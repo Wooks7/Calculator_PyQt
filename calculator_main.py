@@ -141,14 +141,12 @@ class Main(QDialog):
         solution = eval(equation)
         self.equation_solution.setText(str(solution))
 
-    def button_clear_clicked(self):
-        self.equation_solution.setText("")
-        self.equation_solution.setText("")
-
     def button_backspace_clicked(self):
         equation = self.equation_solution.text()
-        equation = equation[:-1]
-        self.equation_solution.setText(equation)        
+        equation = equation[:-1]  # 마지막 문자 삭제
+        if not equation:  # 모든 숫자가 지워져서 식이 비어있는 경우
+            equation = '0'  # '0'을 출력
+        self.equation_solution.setText(equation)
 
     def button_percentage_clicked(self):
         equation = self.equation_solution.text()
