@@ -1,5 +1,6 @@
 import sys
 from PyQt5.QtWidgets import *
+from PyQt5.QtCore import Qt
 
 class Main(QDialog):
     def __init__(self):
@@ -17,6 +18,7 @@ class Main(QDialog):
         ### 수식 입력과 답 출력을 위한 LineEdit 위젯 생성
         self.equation_solution = QLineEdit("")  # 하나의 LineEdit으로 Equation과 Solution을 표시
         self.equation_solution.setReadOnly(True)  # 읽기 전용 설정
+        self.equation_solution.setAlignment(Qt.AlignRight)
 
 
         ### layout_equation_solution 레이아웃에 수식, 답 위젯을 추가
