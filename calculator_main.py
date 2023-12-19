@@ -20,7 +20,7 @@ class Main(QDialog):
 
 
         ### layout_equation_solution 레이아웃에 수식, 답 위젯을 추가
-        layout_equation_solution = QHBoxLayout()  # Horizontal layout으로 변경
+        layout_equation_solution = QGridLayout()
         layout_equation_solution.addWidget(self.equation_solution)
 
 
