@@ -121,11 +121,13 @@ class Main(QDialog):
     #################
     def number_button_clicked(self, num):   
         equation = self.equation_solution.text()
-        if equation == '0' and num != 0 and num != '.':  # 입력된 식이 '0'이고, 입력된 숫자가 '0'이 아니며 '.'도 아닌 경우
+        if equation == '0' and num != '0' and num != '.':  # 입력된 식이 '0'이고, 입력된 숫자가 '0'이 아니며 '.'도 아닌 경우
             self.equation_solution.setText(str(num))
         elif equation == '0' and num == '.':  # 입력된 식이 '0'이고, 입력된 숫자가 '.'인 경우
-            self.equation_solution.setText('0.')  # '0.'으로 식을 설정
+            self.equation_solution.setText('0.')
         elif equation == '0' and num == '0':  # 입력된 식이 '0'이고, 입력된 숫자가 '0'인 경우
+            pass
+        elif '.' in equation and num == '.':  # 이미 '.'이 입력되어 있고, 입력된 숫자가 '.'인 경우
             pass
         else:
             equation += str(num)
