@@ -79,9 +79,9 @@ class Main(QDialog):
         button_dot.clicked.connect(lambda state, num = ".": self.number_button_clicked(num))
         layout_number.addWidget(button_dot, 4, 2)
 
-        button_double_zero = QPushButton("+/-")
-        button_double_zero.clicked.connect(lambda state, num = "00": self.number_button_clicked(num))
-        layout_number.addWidget(button_double_zero, 4, 0)
+        button_change_sign = QPushButton("+/-")
+        button_change_sign.clicked.connect(self.change_sign_button_clicked)
+        layout_number.addWidget(button_change_sign, 4, 0)
 
         ### %, CE, C, 1/x, x^2, root x 버튼 생성
         button_percentage = QPushButton("%")
@@ -143,7 +143,7 @@ class Main(QDialog):
 
     def button_backspace_clicked(self):
         equation = self.equation_solution.text()
-        equation = equation[:-1]  # 마지막 문자 삭제
+        equation = equation[:-1]
         if not equation:  # 모든 숫자가 지워져서 식이 비어있는 경우
             equation = '0'  # '0'을 출력
         self.equation_solution.setText(equation)
@@ -209,6 +209,18 @@ class Main(QDialog):
                 self.equation_solution.setText(str(result))
             except ValueError:
                 print("유효하지 않은 입력입니다. 양수를 입력해주세요.")
+
+    def change_sign_button_clicked(self):
+        equation = self.equation_solution.text()
+        if equation:  # 식이 비어있지 않은 경우
+            try:
+                number = float(equation)
+                number *= -1
+                if number.is_integer():
+                    number = int(number)
+                self.equation_solution.setText(str(number))
+            except ValueError:
+                print("유효하지 않은 입력입니다. 숫자를 입력해주세요.")
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
