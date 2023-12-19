@@ -20,11 +20,9 @@ class Main(QDialog):
         self.equation_solution.setReadOnly(True)  # 읽기 전용 설정
         self.equation_solution.setAlignment(Qt.AlignRight)
 
-
         ### layout_equation_solution 레이아웃에 수식, 답 위젯을 추가
         layout_equation_solution = QGridLayout()
         layout_equation_solution.addWidget(self.equation_solution)
-
 
         ### 사칙연상 버튼 생성
         button_plus = QPushButton("+")
@@ -102,7 +100,6 @@ class Main(QDialog):
         main_layout.addLayout(layout_operation, 1, 3, 3, 1)
         main_layout.addLayout(layout_number, 2, 0, 2, 3)
         main_layout.addLayout(layout_addfeat, 1, 0, 1, 3)
-
 
         self.setLayout(main_layout)
         self.show()
