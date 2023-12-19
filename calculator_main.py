@@ -189,8 +189,16 @@ class Main(QDialog):
             self.equation_solution.setText("입력이 잘못되었습니다.")
 
     def button_square_clicked(self):
-        # 버튼 'x^2'가 클릭되었을 때 수행할 기능
-        pass
+        equation = self.equation_solution.text()
+        if equation:  # 식이 비어있지 않은 경우
+            try:
+                result = float(equation) ** 2  # 입력된 수의 제곱을 계산
+                if result.is_integer():  # 계산 결과가 정수인 경우
+                    result = int(result)  # 결과를 정수로 변환
+                self.equation_solution.setText(str(result))
+            except ValueError:
+                print("유효하지 않은 입력입니다. 숫자를 입력해주세요.")
+
 
     def button_root_clicked(self):
         # 버튼 '√'가 클릭되었을 때 수행할 기능
