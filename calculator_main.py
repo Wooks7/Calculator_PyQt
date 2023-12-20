@@ -173,9 +173,10 @@ class Main(QDialog):
 
     def button_backspace_clicked(self):
         equation = self.equation_solution.text()
-        equation = equation[:-1]
-        if not equation:  # 모든 숫자가 지워져서 식이 비어있는 경우
-            equation = '0'  # '0'을 출력
+        if equation in ["유효하지 않은 입력입니다. 숫자를 입력해주세요.", "0으로 나눌 수 없습니다.", "입력이 잘못되었습니다.", "유효하지 않은 입력입니다. 양수를 입력해주세요."]:
+            equation = ''
+        else:
+            equation = equation[:-1]  # 마지막 문자 제거
         self.equation_solution.setText(equation)
 
     def button_percentage_clicked(self):
