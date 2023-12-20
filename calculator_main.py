@@ -20,7 +20,7 @@ class Main(QDialog):
         layout_addfeat = QGridLayout()
 
         ### 수식 입력과 답 출력을 위한 LineEdit 위젯 생성
-        self.equation_solution = QLineEdit("")  # 하나의 LineEdit으로 Equation과 Solution을 표시
+        self.equation_solution = QLineEdit("0")  # 하나의 LineEdit으로 Equation과 Solution을 표시
         self.equation_solution.setReadOnly(True)  # 읽기 전용 설정
         self.equation_solution.setAlignment(Qt.AlignRight)
 
@@ -143,7 +143,7 @@ class Main(QDialog):
             self.equation_solution.setText("유효하지 않은 입력입니다. 숫자를 입력해주세요.")
             return
         self.current_operation = operation  # 현재 연산자를 저장
-        self.equation_solution.setText('0')  # 화면에 출력된 숫자를 모두 삭제
+        self.equation_solution.setText('0')
 
     def button_equal_clicked(self):
         equation = self.equation_solution.text()
@@ -184,7 +184,7 @@ class Main(QDialog):
     def button_percentage_clicked(self):
         equation = self.equation_solution.text()
         if equation == '0':  # 입력된 식이 '0'인 경우
-            self.equation_solution.setText('0')  # 결과를 '0'으로 설정
+            self.equation_solution.setText('0')
         else:
             try:
                 result = eval(equation) / 100  # 현재 수식의 값을 100으로 나누어 백분율 계산
@@ -227,7 +227,7 @@ class Main(QDialog):
             try:
                 result = float(equation) ** 2  # 입력된 수의 제곱을 계산
                 if result.is_integer():  # 계산 결과가 정수인 경우
-                    result = int(result)  # 결과를 정수로 변환
+                    result = int(result)
                 self.equation_solution.setText(str(result))
             except ValueError:
                 self.equation_solution.setText("유효하지 않은 입력입니다. 숫자를 입력해주세요.")
@@ -238,7 +238,7 @@ class Main(QDialog):
             try:
                 result = math.sqrt(float(equation))  # 입력된 수의 제곱근을 계산
                 if result.is_integer():  # 계산 결과가 정수인 경우
-                    result = int(result)  # 결과를 정수로 변환
+                    result = int(result)
                 self.equation_solution.setText(str(result))
             except ValueError:
                 self.equation_solution.setText("유효하지 않은 입력입니다. 양수를 입력해주세요.")
