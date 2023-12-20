@@ -192,16 +192,16 @@ class Main(QDialog):
     def button_CE_clicked(self):
         equation = self.equation_solution.text()
         if equation.replace('.', '', 1).isdigit() or equation.startswith('-'):  # 식이 숫자만으로 이루어져 있거나 음수인 경우
-            self.equation_solution.setText('0')
+            self.equation_solution.setText('')
         else:
             last_operator = max([equation.rfind(op) for op in ['+', '-', '*', '/']])
             if last_operator == -1 or last_operator == len(equation) - 1:
-                self.equation_solution.setText('0')
+                self.equation_solution.setText('')
             else:
                 self.equation_solution.setText(equation[:last_operator+1])  # 연산자 이전까지의 숫자를 지움
 
     def button_C_clicked(self):
-        self.equation_solution.setText('0')
+        self.equation_solution.setText('')
         self.current_operation = None  # 현재 연산자를 초기화
         self.current_number = None  # 현재 숫자를 초기화
 
