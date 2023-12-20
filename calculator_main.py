@@ -1,29 +1,32 @@
 import sys
 from PyQt5.QtWidgets import *
+from PyQt5.QtCore import Qt
+import re
+import math
 
 class Main(QDialog):
     def __init__(self):
         super().__init__()
         self.init_ui()
+        self.current_operation = None
+        self.current_number = None
 
     def init_ui(self):
-        main_layout = QVBoxLayout()
+        main_layout = QGridLayout()
 
         ### 각 위젯을 배치할 레이아웃을 미리 만들어 둠
-        layout_operation = QHBoxLayout()
-        layout_clear_equal = QHBoxLayout()
+        layout_operation = QGridLayout()
         layout_number = QGridLayout()
-        layout_equation_solution = QFormLayout()
+        layout_addfeat = QGridLayout()
 
         ### 수식 입력과 답 출력을 위한 LineEdit 위젯 생성
-        label_equation = QLabel("Equation: ")
-        label_solution = QLabel("Solution: ")
-        self.equation = QLineEdit("")
-        self.solution = QLineEdit("")
+        self.equation_solution = QLineEdit("0")  # 하나의 LineEdit으로 Equation과 Solution을 표시
+        self.equation_solution.setReadOnly(True)  # 읽기 전용 설정
+        self.equation_solution.setAlignment(Qt.AlignRight)
 
         ### layout_equation_solution 레이아웃에 수식, 답 위젯을 추가
-        layout_equation_solution.addRow(label_equation, self.equation)
-        layout_equation_solution.addRow(label_solution, self.solution)
+        layout_equation_solution = QGridLayout()
+        layout_equation_solution.addWidget(self.equation_solution)
 
         ### 사칙연상 버튼 생성
         button_plus = QPushButton("+")
@@ -38,53 +41,79 @@ class Main(QDialog):
         button_division.clicked.connect(lambda state, operation = "/": self.button_operation_clicked(operation))
 
         ### 사칙연산 버튼을 layout_operation 레이아웃에 추가
-        layout_operation.addWidget(button_plus)
-        layout_operation.addWidget(button_minus)
-        layout_operation.addWidget(button_product)
-        layout_operation.addWidget(button_division)
+        layout_operation.addWidget(button_plus, 4, 0)
+        layout_operation.addWidget(button_minus, 3, 0)
+        layout_operation.addWidget(button_product, 2, 0)
+        layout_operation.addWidget(button_division, 1, 0)
 
         ### =, clear, backspace 버튼 생성
         button_equal = QPushButton("=")
-        button_clear = QPushButton("Clear")
         button_backspace = QPushButton("Backspace")
 
         ### =, clear, backspace 버튼 클릭 시 시그널 설정
         button_equal.clicked.connect(self.button_equal_clicked)
-        button_clear.clicked.connect(self.button_clear_clicked)
         button_backspace.clicked.connect(self.button_backspace_clicked)
 
         ### =, clear, backspace 버튼을 layout_clear_equal 레이아웃에 추가
-        layout_clear_equal.addWidget(button_clear)
-        layout_clear_equal.addWidget(button_backspace)
-        layout_clear_equal.addWidget(button_equal)
+        layout_operation.addWidget(button_backspace, 0, 0)
+        layout_operation.addWidget(button_equal, 5, 0)
 
         ### 숫자 버튼 생성하고, layout_number 레이아웃에 추가
         ### 각 숫자 버튼을 클릭했을 때, 숫자가 수식창에 입력 될 수 있도록 시그널 설정
         number_button_dict = {}
-        for number in range(0, 10):
-            number_button_dict[number] = QPushButton(str(number))
-            number_button_dict[number].clicked.connect(lambda state, num = number:
-                                                       self.number_button_clicked(num))
-            if number >0:
-                x,y = divmod(number-1, 3)
-                layout_number.addWidget(number_button_dict[number], x, y)
-            elif number==0:
-                layout_number.addWidget(number_button_dict[number], 3, 1)
+        positions = [(i, j) for i in range(3, -1, -1) for j in range(3)]
 
-        ### 소숫점 버튼과 00 버튼을 입력하고 시그널 설정
+        for number in range(0, 10):  # 0부터 9까지의 숫자 버튼 생성
+            if number != 0:  # 숫자가 0이 아니라면
+                number_button_dict[number] = QPushButton(str(number))
+                number_button_dict[number].clicked.connect(lambda state, num = number:
+                                                            self.number_button_clicked(num))
+                x, y = positions[number - 1]
+                layout_number.addWidget(number_button_dict[number], x, y)
+            else:  # 숫자가 0이면
+                number_button_dict[number] = QPushButton(str(number))
+                number_button_dict[number].clicked.connect(lambda state, num = number:
+                                                            self.number_button_clicked(num))
+                layout_number.addWidget(number_button_dict[number], 4, 1)
+
+        ### 소숫점 버튼과 +/- 버튼을 입력하고 시그널 설정
         button_dot = QPushButton(".")
         button_dot.clicked.connect(lambda state, num = ".": self.number_button_clicked(num))
-        layout_number.addWidget(button_dot, 3, 2)
+        layout_number.addWidget(button_dot, 4, 2)
 
-        button_double_zero = QPushButton("00")
-        button_double_zero.clicked.connect(lambda state, num = "00": self.number_button_clicked(num))
-        layout_number.addWidget(button_double_zero, 3, 0)
+        button_change_sign = QPushButton("+/-")
+        button_change_sign.clicked.connect(self.change_sign_button_clicked)
+        layout_number.addWidget(button_change_sign, 4, 0)
 
-        ### 각 레이아웃을 main_layout 레이아웃에 추가
-        main_layout.addLayout(layout_equation_solution)
-        main_layout.addLayout(layout_operation)
-        main_layout.addLayout(layout_clear_equal)
-        main_layout.addLayout(layout_number)
+        ### %, CE, C, 1/x, x^2, root x 버튼 생성
+        button_percentage = QPushButton("%")
+        button_CE = QPushButton("CE")
+        button_C = QPushButton("C")
+        button_inverse = QPushButton("1/x")
+        button_square = QPushButton("x^2")
+        button_root = QPushButton("√")
+
+        # 버튼들의 기능 추가
+        button_percentage.clicked.connect(self.button_percentage_clicked)
+        button_CE.clicked.connect(self.button_CE_clicked)
+        button_C.clicked.connect(self.button_C_clicked)
+        button_inverse.clicked.connect(self.button_inverse_clicked)
+        button_square.clicked.connect(self.button_square_clicked)
+        button_root.clicked.connect(self.button_root_clicked)
+
+        ### 버튼을 layout_addfeat 레이아웃에 추가
+        layout_addfeat.addWidget(button_percentage, 0, 0)
+        layout_addfeat.addWidget(button_CE, 0, 1)
+        layout_addfeat.addWidget(button_C, 0, 2)
+        layout_addfeat.addWidget(button_inverse, 1, 0)
+        layout_addfeat.addWidget(button_square, 1, 1)
+        layout_addfeat.addWidget(button_root, 1, 2)
+
+        ## 각 레이아웃을 main_layout 레이아웃에 추가
+        main_layout.addLayout(layout_equation_solution, 0, 0, 1, 4)
+        main_layout.addLayout(layout_operation, 1, 3, 3, 1)
+        main_layout.addLayout(layout_number, 2, 0, 2, 3)
+        main_layout.addLayout(layout_addfeat, 1, 0, 1, 3)
 
         self.setLayout(main_layout)
         self.show()
@@ -92,29 +121,161 @@ class Main(QDialog):
     #################
     ### functions ###
     #################
-    def number_button_clicked(self, num):
-        equation = self.equation.text()
-        equation += str(num)
-        self.equation.setText(equation)
+    def number_button_clicked(self, num):   
+        equation = self.equation_solution.text()
+        if equation == '0' and num != '0' and num != '.':  # 입력된 식이 '0'이고, 입력된 숫자가 '0'이 아니며 '.'도 아닌 경우
+            self.equation_solution.setText(str(num))
+        elif equation == '0' and num == '.':  # 입력된 식이 '0'이고, 입력된 숫자가 '.'인 경우
+            self.equation_solution.setText('0.')
+        elif equation == '0' and num == '0':  # 입력된 식이 '0'이고, 입력된 숫자가 '0'인 경우
+            pass
+        elif '.' in equation and num == '.':  # 이미 '.'이 입력되어 있고, 입력된 숫자가 '.'인 경우
+            pass
+        else:
+            equation += str(num)
+            self.equation_solution.setText(equation)
 
     def button_operation_clicked(self, operation):
-        equation = self.equation.text()
-        equation += operation
-        self.equation.setText(equation)
+        equation = self.equation_solution.text()
+        try:
+            self.current_number = float(equation)  # 식을 숫자로 변환
+        except ValueError:
+            self.equation_solution.setText("유효하지 않은 입력입니다. 숫자를 입력해주세요.")
+            return
+        self.current_operation = operation  # 현재 연산자를 저장
+        self.equation_solution.setText('0')
 
     def button_equal_clicked(self):
-        equation = self.equation.text()
-        solution = eval(equation)
-        self.solution.setText(str(solution))
+        equation = self.equation_solution.text()
+        try:
+            second_number = float(equation)  # 식을 숫자로 변환
+        except ValueError:
+            self.equation_solution.setText("유효하지 않은 입력입니다. 숫자를 입력해주세요.")
+            return
 
-    def button_clear_clicked(self):
-        self.equation.setText("")
-        self.solution.setText("")
+        if self.current_operation and self.current_number is not None:  # 이전 연산자와 숫자가 있는 경우
+            self.previous_number = second_number  # 이전에 사용한 숫자를 저장
+            self.previous_operation = self.current_operation  # 이전에 사용한 연산자를 저장
+            if self.current_operation == '+':
+                solution = self.current_number + second_number
+            elif self.current_operation == '-':
+                solution = self.current_number - second_number
+            elif self.current_operation == '*':
+                solution = self.current_number * second_number
+            elif self.current_operation == '/':
+                try:
+                    solution = self.current_number / second_number  # 0으로 나누는 경우를 대비해 예외 처리
+                except ZeroDivisionError:
+                    self.equation_solution.setText("0으로 나눌 수 없습니다.")
+                    return
+            if solution.is_integer():  # 결과가 정수인 경우
+                solution = int(solution)
+            self.equation_solution.setText(str(solution))
+        elif self.previous_operation and self.previous_number is not None:  # 이전에 수행한 연산이 있는 경우
+            if self.previous_operation == '+':
+                solution = float(equation) + self.previous_number
+            elif self.previous_operation == '-':
+                solution = float(equation) - self.previous_number
+            elif self.previous_operation == '*':
+                solution = float(equation) * self.previous_number
+            elif self.previous_operation == '/':
+                try:
+                    solution = float(equation) / self.previous_number  # 0으로 나누는 경우를 대비해 예외 처리
+                except ZeroDivisionError:
+                    self.equation_solution.setText("0으로 나눌 수 없습니다.")
+                    return
+            if solution.is_integer():  # 결과가 정수인 경우
+                solution = int(solution)
+            self.equation_solution.setText(str(solution))
+        else:  # 이전에 수행한 연산이 없는 경우
+            self.equation_solution.setText(equation)
+        self.current_operation = None  # 현재 연산자를 초기화
+        self.current_number = None  # 현재 숫자를 초기화
+
 
     def button_backspace_clicked(self):
-        equation = self.equation.text()
-        equation = equation[:-1]
-        self.equation.setText(equation)
+        equation = self.equation_solution.text()
+        if equation in ["유효하지 않은 입력입니다. 숫자를 입력해주세요.", "0으로 나눌 수 없습니다.", "입력이 잘못되었습니다.", "유효하지 않은 입력입니다. 양수를 입력해주세요."]:
+            equation = '0'
+        else:
+            equation = equation[:-1]  # 마지막 문자 제거
+            if not equation:
+                equation = '0'
+        self.equation_solution.setText(equation)
+
+    def button_percentage_clicked(self):
+        equation = self.equation_solution.text()
+        if equation == '0':  # 입력된 식이 '0'인 경우
+            self.equation_solution.setText('0')
+        else:
+            try:
+                result = eval(equation) / 100  # 현재 수식의 값을 100으로 나누어 백분율 계산
+                self.equation_solution.setText(str(result))
+            except Exception as e:
+                self.equation_solution.setText("입력이 잘못되었습니다.")
+
+    def button_CE_clicked(self):
+        equation = self.equation_solution.text()
+        if equation.replace('.', '', 1).isdigit() or equation.startswith('-'):  # 식이 숫자만으로 이루어져 있거나 음수인 경우
+            self.equation_solution.setText('0')
+        else:
+            last_operator = max([equation.rfind(op) for op in ['+', '-', '*', '/']])
+            if last_operator == -1 or last_operator == len(equation) - 1:
+                self.equation_solution.setText('')
+            else:
+                self.equation_solution.setText(equation[:last_operator+1])  # 연산자 이전까지의 숫자를 지움
+
+    def button_C_clicked(self):
+        self.equation_solution.setText('0')
+        self.current_operation = None  # 현재 연산자를 초기화
+        self.current_number = None  # 현재 숫자를 초기화
+
+    def button_inverse_clicked(self):
+        equation = self.equation_solution.text()
+        try:
+            if equation:
+                result = 1 / float(equation)  # 입력된 수의 역수를 계산
+                self.equation_solution.setText(str(result))
+            else:
+                self.equation_solution.setText("0으로 나눌 수 없습니다.")
+        except ZeroDivisionError:  # 입력된 수가 0인 경우
+            self.equation_solution.setText("0으로 나눌 수 없습니다.")
+        except Exception as e:  # 그 외의 오류가 발생한 경우
+            self.equation_solution.setText("입력이 잘못되었습니다.")
+
+    def button_square_clicked(self):
+        equation = self.equation_solution.text()
+        if equation:
+            try:
+                result = float(equation) ** 2  # 입력된 수의 제곱을 계산
+                if result.is_integer():  # 계산 결과가 정수인 경우
+                    result = int(result)
+                self.equation_solution.setText(str(result))
+            except ValueError:
+                self.equation_solution.setText("유효하지 않은 입력입니다. 숫자를 입력해주세요.")
+
+    def button_root_clicked(self):
+        equation = self.equation_solution.text()
+        if equation:
+            try:
+                result = math.sqrt(float(equation))  # 입력된 수의 제곱근을 계산
+                if result.is_integer():  # 계산 결과가 정수인 경우
+                    result = int(result)
+                self.equation_solution.setText(str(result))
+            except ValueError:
+                self.equation_solution.setText("유효하지 않은 입력입니다. 양수를 입력해주세요.")
+
+    def change_sign_button_clicked(self):
+        equation = self.equation_solution.text()
+        if equation:  # 식이 비어있지 않은 경우
+            try:
+                number = float(equation)
+                number *= -1
+                if number.is_integer():
+                    number = int(number)
+                self.equation_solution.setText(str(number))
+            except ValueError:
+                self.equation_solution.setText("유효하지 않은 입력입니다. 숫자를 입력해주세요.")
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
