@@ -152,7 +152,10 @@ class Main(QDialog):
         except ValueError:
             self.equation_solution.setText("유효하지 않은 입력입니다. 숫자를 입력해주세요.")
             return
+
         if self.current_operation and self.current_number is not None:  # 이전 연산자와 숫자가 있는 경우
+            self.previous_number = second_number  # 이전에 사용한 숫자를 저장
+            self.previous_operation = self.current_operation  # 이전에 사용한 연산자를 저장
             if self.current_operation == '+':
                 solution = self.current_number + second_number
             elif self.current_operation == '-':
@@ -168,8 +171,27 @@ class Main(QDialog):
             if solution.is_integer():  # 결과가 정수인 경우
                 solution = int(solution)
             self.equation_solution.setText(str(solution))
-            self.current_operation = None  # 현재 연산자를 초기화
-            self.current_number = None  # 현재 숫자를 초기화
+        elif self.previous_operation and self.previous_number is not None:  # 이전에 수행한 연산이 있는 경우
+            if self.previous_operation == '+':
+                solution = float(equation) + self.previous_number
+            elif self.previous_operation == '-':
+                solution = float(equation) - self.previous_number
+            elif self.previous_operation == '*':
+                solution = float(equation) * self.previous_number
+            elif self.previous_operation == '/':
+                try:
+                    solution = float(equation) / self.previous_number  # 0으로 나누는 경우를 대비해 예외 처리
+                except ZeroDivisionError:
+                    self.equation_solution.setText("0으로 나눌 수 없습니다.")
+                    return
+            if solution.is_integer():  # 결과가 정수인 경우
+                solution = int(solution)
+            self.equation_solution.setText(str(solution))
+        else:  # 이전에 수행한 연산이 없는 경우
+            self.equation_solution.setText(equation)
+        self.current_operation = None  # 현재 연산자를 초기화
+        self.current_number = None  # 현재 숫자를 초기화
+
 
     def button_backspace_clicked(self):
         equation = self.equation_solution.text()
