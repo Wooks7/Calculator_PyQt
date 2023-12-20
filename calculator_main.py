@@ -8,6 +8,8 @@ class Main(QDialog):
     def __init__(self):
         super().__init__()
         self.init_ui()
+        self.current_operation = None
+        self.current_number = None
 
     def init_ui(self):
         main_layout = QGridLayout()
@@ -135,13 +137,39 @@ class Main(QDialog):
 
     def button_operation_clicked(self, operation):
         equation = self.equation_solution.text()
-        equation += operation
-        self.equation_solution.setText(equation)
+        try:
+            self.current_number = float(equation)  # 식을 숫자로 변환
+        except ValueError:
+            self.equation_solution.setText("유효하지 않은 입력입니다. 숫자를 입력해주세요.")
+            return
+        self.current_operation = operation  # 현재 연산자를 저장
+        self.equation_solution.setText('')  # 화면에 출력된 숫자를 모두 삭제
 
     def button_equal_clicked(self):
         equation = self.equation_solution.text()
-        solution = eval(equation)
-        self.equation_solution.setText(str(solution))
+        try:
+            second_number = float(equation)  # 식을 숫자로 변환
+        except ValueError:
+            self.equation_solution.setText("유효하지 않은 입력입니다. 숫자를 입력해주세요.")
+            return
+        if self.current_operation and self.current_number is not None:  # 이전 연산자와 숫자가 있는 경우
+            if self.current_operation == '+':
+                solution = self.current_number + second_number
+            elif self.current_operation == '-':
+                solution = self.current_number - second_number
+            elif self.current_operation == '*':
+                solution = self.current_number * second_number
+            elif self.current_operation == '/':
+                try:
+                    solution = self.current_number / second_number  # 0으로 나누는 경우를 대비해 예외 처리
+                except ZeroDivisionError:
+                    self.equation_solution.setText("0으로 나눌 수 없습니다.")
+                    return
+            if solution.is_integer():  # 결과가 정수인 경우
+                solution = int(solution)
+            self.equation_solution.setText(str(solution))
+            self.current_operation = None  # 현재 연산자를 초기화
+            self.current_number = None  # 현재 숫자를 초기화
 
     def button_backspace_clicked(self):
         equation = self.equation_solution.text()
@@ -161,10 +189,9 @@ class Main(QDialog):
             except Exception as e:
                 self.equation_solution.setText("입력이 잘못되었습니다.")
 
-
     def button_CE_clicked(self):
         equation = self.equation_solution.text()
-        if equation.isdigit() or equation.startswith('-'):  # 식이 숫자만으로 이루어져 있거나 음수인 경우
+        if equation.replace('.', '', 1).isdigit() or equation.startswith('-'):  # 식이 숫자만으로 이루어져 있거나 음수인 경우
             self.equation_solution.setText('0')
         else:
             last_operator = max([equation.rfind(op) for op in ['+', '-', '*', '/']])
@@ -174,7 +201,9 @@ class Main(QDialog):
                 self.equation_solution.setText(equation[:last_operator+1])  # 연산자 이전까지의 숫자를 지움
 
     def button_C_clicked(self):
-            self.equation_solution.setText('0')
+        self.equation_solution.setText('0')
+        self.current_operation = None  # 현재 연산자를 초기화
+        self.current_number = None  # 현재 숫자를 초기화
 
     def button_inverse_clicked(self):
         equation = self.equation_solution.text()
@@ -198,8 +227,7 @@ class Main(QDialog):
                     result = int(result)  # 결과를 정수로 변환
                 self.equation_solution.setText(str(result))
             except ValueError:
-                print("유효하지 않은 입력입니다. 숫자를 입력해주세요.")
-
+                self.equation_solution.setText("유효하지 않은 입력입니다. 숫자를 입력해주세요.")
 
     def button_root_clicked(self):
         equation = self.equation_solution.text()
@@ -210,7 +238,7 @@ class Main(QDialog):
                     result = int(result)  # 결과를 정수로 변환
                 self.equation_solution.setText(str(result))
             except ValueError:
-                print("유효하지 않은 입력입니다. 양수를 입력해주세요.")
+                self.equation_solution.setText("유효하지 않은 입력입니다. 양수를 입력해주세요.")
 
     def change_sign_button_clicked(self):
         equation = self.equation_solution.text()
@@ -222,7 +250,7 @@ class Main(QDialog):
                     number = int(number)
                 self.equation_solution.setText(str(number))
             except ValueError:
-                print("유효하지 않은 입력입니다. 숫자를 입력해주세요.")
+                self.equation_solution.setText("유효하지 않은 입력입니다. 숫자를 입력해주세요.")
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
