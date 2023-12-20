@@ -143,7 +143,7 @@ class Main(QDialog):
             self.equation_solution.setText("유효하지 않은 입력입니다. 숫자를 입력해주세요.")
             return
         self.current_operation = operation  # 현재 연산자를 저장
-        self.equation_solution.setText('')  # 화면에 출력된 숫자를 모두 삭제
+        self.equation_solution.setText('0')  # 화면에 출력된 숫자를 모두 삭제
 
     def button_equal_clicked(self):
         equation = self.equation_solution.text()
@@ -174,9 +174,11 @@ class Main(QDialog):
     def button_backspace_clicked(self):
         equation = self.equation_solution.text()
         if equation in ["유효하지 않은 입력입니다. 숫자를 입력해주세요.", "0으로 나눌 수 없습니다.", "입력이 잘못되었습니다.", "유효하지 않은 입력입니다. 양수를 입력해주세요."]:
-            equation = ''
+            equation = '0'
         else:
             equation = equation[:-1]  # 마지막 문자 제거
+            if not equation:
+                equation = '0'
         self.equation_solution.setText(equation)
 
     def button_percentage_clicked(self):
@@ -193,7 +195,7 @@ class Main(QDialog):
     def button_CE_clicked(self):
         equation = self.equation_solution.text()
         if equation.replace('.', '', 1).isdigit() or equation.startswith('-'):  # 식이 숫자만으로 이루어져 있거나 음수인 경우
-            self.equation_solution.setText('')
+            self.equation_solution.setText('0')
         else:
             last_operator = max([equation.rfind(op) for op in ['+', '-', '*', '/']])
             if last_operator == -1 or last_operator == len(equation) - 1:
@@ -202,7 +204,7 @@ class Main(QDialog):
                 self.equation_solution.setText(equation[:last_operator+1])  # 연산자 이전까지의 숫자를 지움
 
     def button_C_clicked(self):
-        self.equation_solution.setText('')
+        self.equation_solution.setText('0')
         self.current_operation = None  # 현재 연산자를 초기화
         self.current_number = None  # 현재 숫자를 초기화
 
